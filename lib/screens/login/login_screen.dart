@@ -1,0 +1,191 @@
+import 'package:flutter/material.dart';
+import 'package:registro_ponto/services/auth_service.dart';
+import 'package:registro_ponto/widgets/error_message_widget.dart';
+import 'package:registro_ponto/widgets/theme_switch.dart';
+import 'package:registro_ponto/utils/validators.dart';
+
+class LoginPage extends StatefulWidget {
+  final VoidCallback toggleTheme;
+
+  const LoginPage({Key? key, required this.toggleTheme}) : super(key: key);
+
+  @override
+  _LoginPageState createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final _formKey = GlobalKey<FormState>();
+  String _email = '';
+  String _password = '';
+  bool _rememberMe = false;
+  bool _showPassword = false;
+  String? _errorMessage;
+  final AuthService _authService = AuthService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCredentials();
+  }
+
+  void _loadCredentials() async {
+    final credentials = await _authService.getSavedCredentials();
+    if (credentials != null) {
+      setState(() {
+        _email = credentials['email']!;
+        _password = credentials['password']!;
+        _rememberMe = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: Stack(
+        children: [
+          SingleChildScrollView(
+            child: SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: ThemeSwitch(
+                          isDarkMode:
+                              Theme.of(context).brightness == Brightness.dark,
+                          onToggle: widget.toggleTheme,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Bem Vindo Novamente",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 36),
+                      _buildUsernameField(),
+                      const SizedBox(height: 20),
+                      _buildPasswordField(),
+                      const SizedBox(height: 20),
+                      _buildLoginButton(),
+                      _buildRememberMeCheckbox(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (_errorMessage != null && _errorMessage!.isNotEmpty)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: ErrorMessageWidget(message: _errorMessage!),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUsernameField() {
+    return TextFormField(
+      initialValue: _email,
+      decoration: const InputDecoration(labelText: 'Email'),
+      validator: validateEmail,
+      onSaved: (value) => _email = value ?? '',
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextFormField(
+      initialValue: _password,
+      obscureText: !_showPassword,
+      decoration: InputDecoration(
+        labelText: 'Senha',
+        suffixIcon: IconButton(
+          icon: Icon(_showPassword ? Icons.visibility : Icons.visibility_off),
+          onPressed: () {
+            setState(() => _showPassword = !_showPassword);
+          },
+        ),
+      ),
+      validator: validatePassword,
+      onSaved: (value) => _password = value ?? '',
+    );
+  }
+
+  Widget _buildLoginButton() {
+    return Center(
+      child: ElevatedButton(
+        onPressed: _onLoginPressed,
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 10),
+        ),
+        child: const Text(
+          'LOGIN',
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRememberMeCheckbox() {
+    return Row(
+      children: [
+        Checkbox(
+          value: _rememberMe,
+          onChanged: (bool? value) {
+            setState(() {
+              _rememberMe = value ?? false;
+            });
+            if (_rememberMe && _formKey.currentState!.validate()) {
+              _formKey.currentState!.save();
+              _authService.saveCredentials(_email, _password);
+            } else {
+              _authService.clearCredentials();
+            }
+          },
+          shape: const CircleBorder(),
+        ),
+        const Text("Lembrar-Me"),
+      ],
+    );
+  }
+
+  void _onLoginPressed() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+      setState(() {
+        _errorMessage = null;
+      });
+      final result = await _authService.login(_email, _password);
+      if (result.containsKey('token')) {
+        Navigator.of(context).pushReplacementNamed('/registroPonto');
+      } else if (result.containsKey('error')) {
+        _showError(result['error']);
+      }
+    }
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
+  }
+}
