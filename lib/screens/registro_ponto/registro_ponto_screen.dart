@@ -3,6 +3,7 @@ import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart'
     show CalendarCarousel, Event;
 import 'package:intl/date_symbol_data_local.dart';
+import '../../widgets/custom_drawer.dart'; // Importe o CustomDrawer
 
 class RegistroPontoPage extends StatefulWidget {
   const RegistroPontoPage({Key? key}) : super(key: key);
@@ -30,40 +31,31 @@ class _RegistroPontoPageState extends State<RegistroPontoPage> {
           _selectedDate = date;
         });
       },
-      weekendTextStyle: const TextStyle(
-        color: Colors.red,
-      ),
-      todayButtonColor: Colors.transparent,
-      todayBorderColor: Colors.blue,
+      weekendTextStyle:
+          const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+      todayButtonColor: Colors.green,
       selectedDayButtonColor: Colors.blue,
       selectedDayBorderColor: Colors.blue,
       selectedDateTime: _selectedDate,
       daysHaveCircularBorder: true,
+      weekdayTextStyle: const TextStyle(
+        color: Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
     );
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sistema de Registro de Jornada'),
         backgroundColor: Colors.blue,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.menu),
-            onPressed: () {
-              // Implementar ação do menu
-            },
-          ),
-        ],
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      drawer: const Drawer(
-          // Aqui você pode adicionar o código para o Drawer, se necessário
-          ),
+      drawer: const CustomDrawer(), // Use o CustomDrawer aqui
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            const SizedBox(
-                height: 16), // Adiciona espaço entre o AppBar e o conteúdo
+            const SizedBox(height: 16),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
@@ -74,13 +66,10 @@ class _RegistroPontoPageState extends State<RegistroPontoPage> {
                 ),
               ),
             ),
-            // Definindo uma altura fixa para o container do calendário
             Container(
-              height: MediaQuery.of(context).size.height *
-                  0.6, // Altura como 60% da altura disponível da tela
+              height: MediaQuery.of(context).size.height * 0.6,
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
-              child:
-                  calendarCarouselNoHeader, // Configuração do calendário aqui
+              child: calendarCarouselNoHeader,
             ),
           ],
         ),
