@@ -4,6 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   final ApiService _apiService = ApiService();
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
+  // Método para definir o estado de carregamento
+  void setLoading(bool value) {
+    _isLoading = value;
+  }
 
   Future<void> saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -29,36 +36,42 @@ class AuthService {
 
   Future<Map<String, dynamic>> login(String email, String password,
       {bool rememberMe = false}) async {
-    final tokenResponse = await _apiService.post('/connect/token', {
-      'email': email,
-      'senha': password,
-    });
+    try {
+      setLoading(true);
 
-    if (tokenResponse.statusCode == 200) {
-      final jwt = json.decode(tokenResponse.body)['token'];
+      final tokenResponse = await _apiService.post('/connect/token', {
+        'email': email,
+        'senha': password,
+      });
 
-      if (rememberMe) {
-        await saveCredentials(email, password);
-      }
+      if (tokenResponse.statusCode == 200) {
+        final jwt = json.decode(tokenResponse.body)['token'];
 
-      final loginResponse = await _apiService.post(
-        '/login',
-        {
-          'email': email,
-          'senha': password,
-        },
-        authToken: jwt,
-      );
+        if (rememberMe) {
+          await saveCredentials(email, password);
+        }
 
-      if (loginResponse.statusCode == 200) {
-        return json.decode(loginResponse.body);
+        final loginResponse = await _apiService.post(
+          '/login',
+          {
+            'email': email,
+            'senha': password,
+          },
+          authToken: jwt,
+        );
+
+        if (loginResponse.statusCode == 200) {
+          return json.decode(loginResponse.body);
+        } else {
+          final errorData = json.decode(loginResponse.body);
+          return {'error': errorData['error']};
+        }
       } else {
-        final errorData = json.decode(loginResponse.body);
+        final errorData = json.decode(tokenResponse.body);
         return {'error': errorData['error']};
       }
-    } else {
-      final errorData = json.decode(tokenResponse.body);
-      return {'error': errorData['error']};
+    } finally {
+      setLoading(false);
     }
   }
 }
