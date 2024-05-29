@@ -7,7 +7,7 @@ import 'package:registro_ponto/utils/validators.dart';
 class LoginPage extends StatefulWidget {
   final VoidCallback toggleTheme;
 
-  const LoginPage({Key? key, required this.toggleTheme}) : super(key: key);
+  const LoginPage({super.key, required this.toggleTheme});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -33,9 +33,20 @@ class _LoginPageState extends State<LoginPage> {
     if (credentials != null) {
       setState(() {
         _email = credentials['email']!;
-        _password = credentials['password']!;
+        _password = credentials['senha']!;
         _rememberMe = true;
       });
+      await _autoLogin();
+    }
+  }
+
+  Future<void> _autoLogin() async {
+    final result =
+        await _authService.login(_email, _password, rememberMe: _rememberMe);
+    if (result.containsKey('token')) {
+      Navigator.of(context).pushReplacementNamed('/registroPonto');
+    } else if (result.containsKey('error')) {
+      _showError(result['error']);
     }
   }
 
@@ -75,8 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 20),
                       _buildPasswordField(),
                       const SizedBox(height: 20),
-                      _buildLoginButton(),
                       _buildRememberMeCheckbox(),
+                      _buildLoginButton(),
                     ],
                   ),
                 ),
@@ -154,12 +165,6 @@ class _LoginPageState extends State<LoginPage> {
             setState(() {
               _rememberMe = value ?? false;
             });
-            if (_rememberMe && _formKey.currentState!.validate()) {
-              _formKey.currentState!.save();
-              _authService.saveCredentials(_email, _password);
-            } else {
-              _authService.clearCredentials();
-            }
           },
           shape: const CircleBorder(),
         ),
@@ -174,7 +179,9 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         _errorMessage = null;
       });
-      final result = await _authService.login(_email, _password);
+      final result =
+          await _authService.login(_email, _password, rememberMe: _rememberMe);
+      print('Resultado do login: $result'); // Linha de debug
       if (result.containsKey('token')) {
         Navigator.of(context).pushReplacementNamed('/registroPonto');
       } else if (result.containsKey('error')) {
