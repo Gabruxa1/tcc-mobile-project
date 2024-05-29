@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:registro_ponto/services/auth_service.dart';
+import 'package:registro_ponto/widgets/loading_indicator.dart';
 import 'package:registro_ponto/widgets/error_message_widget.dart';
 import 'package:registro_ponto/widgets/theme_switch.dart';
 import 'package:registro_ponto/utils/validators.dart';
@@ -41,14 +42,22 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _autoLogin() async {
+    setState(() {
+      _isLoading = true;
+    });
     final result =
         await _authService.login(_email, _password, rememberMe: _rememberMe);
+    setState(() {
+      _isLoading = false;
+    });
     if (result.containsKey('token')) {
       Navigator.of(context).pushReplacementNamed('/registroPonto');
     } else if (result.containsKey('error')) {
       _showError(result['error']);
     }
   }
+
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -94,6 +103,8 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
+          if (_isLoading) // Mostrar indicador de carregamento se estiver carregando
+            const LoadingIndicator(),
           if (_errorMessage != null && _errorMessage!.isNotEmpty)
             Align(
               alignment: Alignment.bottomCenter,
@@ -178,10 +189,13 @@ class _LoginPageState extends State<LoginPage> {
       _formKey.currentState!.save();
       setState(() {
         _errorMessage = null;
+        _isLoading = true;
       });
       final result =
           await _authService.login(_email, _password, rememberMe: _rememberMe);
-      print('Resultado do login: $result'); // Linha de debug
+      setState(() {
+        _isLoading = false;
+      });
       if (result.containsKey('token')) {
         Navigator.of(context).pushReplacementNamed('/registroPonto');
       } else if (result.containsKey('error')) {

@@ -6,7 +6,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import '../../widgets/custom_drawer.dart'; // Importe o CustomDrawer
 
 class RegistroPontoPage extends StatefulWidget {
-  const RegistroPontoPage({Key? key}) : super(key: key);
+  const RegistroPontoPage({super.key});
 
   @override
   _RegistroPontoPageState createState() => _RegistroPontoPageState();
