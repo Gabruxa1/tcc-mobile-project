@@ -8,26 +8,27 @@ class AuthService {
   Future<void> saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', email);
-    await prefs.setString('password', password);
+    await prefs.setString('senha', password);
   }
 
   Future<void> clearCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('email');
-    await prefs.remove('password');
+    await prefs.remove('senha');
   }
 
   Future<Map<String, String>?> getSavedCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? email = prefs.getString('email');
-    final String? password = prefs.getString('password');
+    final String? password = prefs.getString('senha');
     if (email != null && password != null) {
-      return {'email': email, 'password': password};
+      return {'email': email, 'senha': password};
     }
     return null;
   }
 
-  Future<Map<String, dynamic>> login(String email, String password) async {
+  Future<Map<String, dynamic>> login(String email, String password,
+      {bool rememberMe = false}) async {
     final tokenResponse = await _apiService.post('/connect/token', {
       'email': email,
       'senha': password,
@@ -36,7 +37,9 @@ class AuthService {
     if (tokenResponse.statusCode == 200) {
       final jwt = json.decode(tokenResponse.body)['token'];
 
-      await saveCredentials(email, password);
+      if (rememberMe) {
+        await saveCredentials(email, password);
+      }
 
       final loginResponse = await _apiService.post(
         '/login',

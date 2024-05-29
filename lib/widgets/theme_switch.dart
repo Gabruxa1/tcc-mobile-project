@@ -5,10 +5,10 @@ class ThemeSwitch extends StatelessWidget {
   final VoidCallback onToggle;
 
   const ThemeSwitch({
-    Key? key,
+    super.key,
     required this.isDarkMode,
     required this.onToggle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class ThemeSwitch extends StatelessWidget {
         Switch(
           value: isDarkMode,
           onChanged: (_) => onToggle(),
-          activeColor: Colors.blue, // Personalize conforme necessário
+          activeColor: Colors.blue,
         ),
         Icon(
           isDarkMode ? Icons.nightlight_round : Icons.wb_sunny,
