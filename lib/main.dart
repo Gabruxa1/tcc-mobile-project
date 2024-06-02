@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:registro_ponto/themes/app_theme.dart'; // Ajuste para o caminho correto do seu app_theme.dart
 import 'package:registro_ponto/screens/login/login_screen.dart';
 import 'package:registro_ponto/screens/registro_ponto/registro_ponto_screen.dart';
+import 'package:registro_ponto/screens/relatorio/relatorio_screen.dart'; // Importação da tela de relatório
 
 void main() => runApp(const MyApp());
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -30,6 +31,8 @@ class _MyAppState extends State<MyApp> {
       routes: {
         '/': (context) => LoginPage(toggleTheme: _toggleTheme),
         '/registroPonto': (context) => const RegistroPontoPage(),
+        '/gerarRelatorio': (context) =>
+            const RelatorioScreen(), // Adiciona a rota para a tela de relatório
         // Adicione outras rotas conforme necessário
       },
       title: 'Aplicativo de Ponto',

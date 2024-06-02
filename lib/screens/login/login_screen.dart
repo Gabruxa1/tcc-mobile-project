@@ -37,6 +37,9 @@ class _LoginPageState extends State<LoginPage> {
         _password = credentials['senha']!;
         _rememberMe = true;
       });
+      print(
+          'Saved Credentials: ${credentials.toString()}'); // Adicionado print para verificar no console
+
       await _autoLogin();
     }
   }
