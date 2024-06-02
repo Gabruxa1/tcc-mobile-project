@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({Key? key}) : super(key: key);
+  const CustomDrawer({super.key});
 
   @override
   _CustomDrawerState createState() => _CustomDrawerState();
@@ -60,7 +60,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.settings),
+                leading: const Icon(Icons.picture_as_pdf),
                 title: const Text('Gerar Relatório'),
                 tileColor:
                     currentRoute == '/gerarRelatorio' ? Colors.blue[100] : null,
