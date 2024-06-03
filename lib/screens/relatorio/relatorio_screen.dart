@@ -4,7 +4,8 @@ import 'package:registro_ponto/services/report_service.dart';
 import '../../widgets/custom_drawer.dart';
 import 'package:open_file/open_file.dart';
 import 'dart:io';
-import 'package:url_launcher/url_launcher.dart' as url_launcher;
+import 'dart:async';
+import '../../widgets/error_message_widget.dart';
 
 class RelatorioScreen extends StatefulWidget {
   const RelatorioScreen({super.key});
@@ -23,43 +24,52 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     DateTime tempDate = isStart ? _startDate : _endDate;
+    DateTime currentDate = DateTime.now();
 
     final DateTime? picked = await showDialog(
       context: context,
       builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setModalState) {
-            return AlertDialog(
-              content: SizedBox(
-                width: double.maxFinite,
-                height: 400,
-                child: CalendarDatePicker(
-                  initialDate: tempDate,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                  onDateChanged: (DateTime date) {
-                    setModalState(() {
+        return AlertDialog(
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: Localizations.override(
+              context: context,
+              locale: const Locale('pt', 'BR'),
+              child: CalendarDatePicker(
+                initialDate: tempDate,
+                firstDate: DateTime(2000),
+                lastDate: DateTime(2100),
+                currentDate: currentDate,
+                onDateChanged: (DateTime date) {
+                  if (date.isAfter(currentDate)) {
+                    // Se a data selecionada for futura, atualiza para a data atual
+                    setState(() {
+                      tempDate = currentDate;
+                    });
+                  } else {
+                    setState(() {
                       tempDate = date;
                     });
-                  },
-                ),
+                  }
+                },
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Cancelar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(tempDate);
-                  },
-                  child: const Text('Selecionar'),
-                ),
-              ],
-            );
-          },
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(tempDate);
+              },
+              child: const Text('Selecionar'),
+            ),
+          ],
         );
       },
     );

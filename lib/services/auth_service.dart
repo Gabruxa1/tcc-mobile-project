@@ -18,11 +18,17 @@ class AuthService {
     await prefs.setInt('funcionario_id', id);
   }
 
+  Future<void> setRememberMe(bool rememberMe) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('remember_me', rememberMe);
+  }
+
   Future<void> clearCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('email');
     await prefs.remove('senha');
     await prefs.remove('funcionario_id');
+    await prefs.remove('remember_me');
   }
 
   Future<Map<String, String>?> getSavedCredentials() async {
@@ -38,6 +44,11 @@ class AuthService {
       };
     }
     return null;
+  }
+
+  Future<bool> getRememberMe() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('remember_me') ?? false;
   }
 
   Future<Map<String, dynamic>> login(String email, String password,
@@ -79,9 +90,8 @@ class AuthService {
             }
 
             if (funcionarioId != null) {
-              if (rememberMe) {
-                await saveCredentials(email, password, funcionarioId);
-              }
+              await saveCredentials(email, password, funcionarioId);
+              await setRememberMe(rememberMe);
               return {'token': jwt, 'funcionario_id': funcionarioId};
             } else {
               return {'error': 'Funcionário não encontrado'};

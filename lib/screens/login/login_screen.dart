@@ -31,16 +31,16 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loadCredentials() async {
     final credentials = await _authService.getSavedCredentials();
+    final rememberMe = await _authService.getRememberMe();
     if (credentials != null) {
       setState(() {
         _email = credentials['email']!;
         _password = credentials['senha']!;
-        _rememberMe = true;
+        _rememberMe = rememberMe;
       });
-      print(
-          'Saved Credentials: ${credentials.toString()}'); // Adicionado print para verificar no console
-
-      await _autoLogin();
+      if (rememberMe) {
+        await _autoLogin();
+      }
     }
   }
 
@@ -106,8 +106,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
           ),
-          if (_isLoading) // Mostrar indicador de carregamento se estiver carregando
-            const LoadingIndicator(),
+          if (_isLoading) const LoadingIndicator(),
           if (_errorMessage != null && _errorMessage!.isNotEmpty)
             Align(
               alignment: Alignment.bottomCenter,
