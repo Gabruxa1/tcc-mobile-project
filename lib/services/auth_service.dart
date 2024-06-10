@@ -7,48 +7,31 @@ class AuthService {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
+  // Método para definir o estado de carregamento
   void setLoading(bool value) {
     _isLoading = value;
   }
 
-  Future<void> saveCredentials(String email, String password, int id) async {
+  Future<void> saveCredentials(String email, String password) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', email);
     await prefs.setString('senha', password);
-    await prefs.setInt('funcionario_id', id);
-  }
-
-  Future<void> setRememberMe(bool rememberMe) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('remember_me', rememberMe);
   }
 
   Future<void> clearCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('email');
     await prefs.remove('senha');
-    await prefs.remove('funcionario_id');
-    await prefs.remove('remember_me');
   }
 
   Future<Map<String, String>?> getSavedCredentials() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     final String? email = prefs.getString('email');
     final String? password = prefs.getString('senha');
-    final int? id = prefs.getInt('funcionario_id');
-    if (email != null && password != null && id != null) {
-      return {
-        'email': email,
-        'senha': password,
-        'funcionario_id': id.toString()
-      };
+    if (email != null && password != null) {
+      return {'email': email, 'senha': password};
     }
     return null;
-  }
-
-  Future<bool> getRememberMe() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('remember_me') ?? false;
   }
 
   Future<Map<String, dynamic>> login(String email, String password,
@@ -64,6 +47,10 @@ class AuthService {
       if (tokenResponse.statusCode == 200) {
         final jwt = json.decode(tokenResponse.body)['token'];
 
+        if (rememberMe) {
+          await saveCredentials(email, password);
+        }
+
         final loginResponse = await _apiService.post(
           '/login',
           {
@@ -74,32 +61,7 @@ class AuthService {
         );
 
         if (loginResponse.statusCode == 200) {
-          final funcionariosResponse =
-              await _apiService.get('/funcionarios/ativos', authToken: jwt);
-
-          if (funcionariosResponse.statusCode == 200) {
-            final List<dynamic> funcionarios =
-                json.decode(funcionariosResponse.body);
-
-            int? funcionarioId;
-            for (var funcionario in funcionarios) {
-              if (funcionario['email'] == email) {
-                funcionarioId = funcionario['id'];
-                break;
-              }
-            }
-
-            if (funcionarioId != null) {
-              await saveCredentials(email, password, funcionarioId);
-              await setRememberMe(rememberMe);
-              return {'token': jwt, 'funcionario_id': funcionarioId};
-            } else {
-              return {'error': 'Funcionário não encontrado'};
-            }
-          } else {
-            final errorData = json.decode(funcionariosResponse.body);
-            return {'error': errorData['error']};
-          }
+          return json.decode(loginResponse.body);
         } else {
           final errorData = json.decode(loginResponse.body);
           return {'error': errorData['error']};
