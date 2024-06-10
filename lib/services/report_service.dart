@@ -24,8 +24,7 @@ class ReportService {
 
       final credentials = await getSavedCredentials();
       if (credentials == null) {
-        // Tratar caso as credenciais não estejam salvas
-        return null;
+        return {'success': false, 'error': 'Credenciais não encontradas'};
       }
 
       final String formattedStartDate =
@@ -37,26 +36,19 @@ class ReportService {
       final http.Response response = await _apiService.get(path);
 
       if (response.statusCode == 200) {
-        // Sucesso, processar os dados do relatório
         final reportData = json.decode(response.body);
         final success = await _generatePDF(reportData);
         if (success) {
-          return reportData;
+          return {'success': true, 'data': reportData};
         } else {
-          return null;
+          return {'success': false, 'error': 'Erro ao gerar o PDF'};
         }
       } else {
-        // Lidar com uma resposta de erro da API
-        print('Erro ao gerar relatório: ${response.statusCode}');
-        // Exemplo de como lidar com a mensagem de erro
-        final errorMessage = json.decode(response.body)['message'];
-        print('Mensagem de erro: $errorMessage');
-        return null;
+        final errorMessage = json.decode(response.body)['error'];
+        return {'success': false, 'error': errorMessage};
       }
     } catch (error) {
-      // Lidar com erros de conexão ou outras exceções
-      print('Erro ao fazer a solicitação: $error');
-      return null;
+      return {'success': false, 'error': 'Erro ao fazer a solicitação'};
     } finally {
       setLoading(false);
     }
@@ -113,11 +105,9 @@ class ReportService {
         await file.writeAsBytes(await pdf.save());
         return true;
       } else {
-        print('Não foi possível acessar o diretório de armazenamento externo.');
         return false;
       }
     } catch (error) {
-      print('Erro ao gerar o PDF: $error');
       return false;
     }
   }

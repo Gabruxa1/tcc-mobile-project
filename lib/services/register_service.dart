@@ -1,12 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:registro_ponto/services/api_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import '../../widgets/error_message_widget.dart';
 
 class ReportService {
   final ApiService _apiService = ApiService();
@@ -25,8 +26,7 @@ class ReportService {
 
       final credentials = await getSavedCredentials();
       if (credentials == null) {
-        // Tratar caso as credenciais não estejam salvas
-        return null;
+        return {'error': 'Credenciais não encontradas'};
       }
 
       final String formattedStartDate =
@@ -38,22 +38,15 @@ class ReportService {
       final http.Response response = await _apiService.get(path);
 
       if (response.statusCode == 200) {
-        // Sucesso, processar os dados do relatório
         final reportData = json.decode(response.body);
-        await _generatePDF(reportData);
+        await generatePDF(reportData);
         return reportData;
       } else {
-        // Lidar com uma resposta de erro da API
-        print('Erro ao gerar relatório: ${response.statusCode}');
-        // Exemplo de como lidar com a mensagem de erro
-        final errorMessage = json.decode(response.body)['message'];
-        print('Mensagem de erro: $errorMessage');
-        return null;
+        final errorData = json.decode(response.body);
+        return {'error': errorData['error']};
       }
     } catch (error) {
-      // Lidar com erros de conexão ou outras exceções
-      print('Erro ao fazer a solicitação: $error');
-      return null;
+      return {'error': 'Erro ao fazer a solicitação: $error'};
     } finally {
       setLoading(false);
     }
@@ -68,7 +61,7 @@ class ReportService {
     return null;
   }
 
-  Future<void> _generatePDF(Map<String, dynamic> reportData) async {
+  Future<void> generatePDF(Map<String, dynamic> reportData) async {
     final pdf = pw.Document();
 
     pdf.addPage(pw.MultiPage(
@@ -105,7 +98,7 @@ class ReportService {
       final file = File('${output.path}/relatorio.pdf');
       await file.writeAsBytes(await pdf.save());
     } else {
-      print('Não foi possível acessar o diretório de armazenamento externo.');
+      throw 'Não foi possível acessar o diretório de armazenamento externo.';
     }
   }
 }
