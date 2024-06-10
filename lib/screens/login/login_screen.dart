@@ -21,7 +21,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _showPassword = false;
   String? _errorMessage;
-  bool _isLoading = false;
   final AuthService _authService = AuthService();
 
   @override
@@ -32,16 +31,13 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loadCredentials() async {
     final credentials = await _authService.getSavedCredentials();
-    final rememberMe = await _authService.getRememberMe();
     if (credentials != null) {
       setState(() {
         _email = credentials['email']!;
         _password = credentials['senha']!;
-        _rememberMe = rememberMe;
+        _rememberMe = true;
       });
-      if (rememberMe) {
-        await _autoLogin();
-      }
+      await _autoLogin();
     }
   }
 
@@ -61,23 +57,10 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _showError(String message) {
-    setState(() {
-      _errorMessage = message;
-    });
-
-    Future.delayed(const Duration(seconds: 5), () {
-      setState(() {
-        _errorMessage = null;
-      });
-    });
-  }
+  bool _isLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom != 0;
-    final double bottomPadding = MediaQuery.of(context).viewInsets.bottom;
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -114,24 +97,22 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 20),
                       _buildRememberMeCheckbox(),
                       _buildLoginButton(),
-                      SizedBox(
-                        height: isKeyboardOpen ? bottomPadding : 60,
-                      ),
                     ],
                   ),
                 ),
               ),
             ),
           ),
-          if (_isLoading) const LoadingIndicator(),
+          if (_isLoading) // Mostrar indicador de carregamento se estiver carregando
+            const LoadingIndicator(),
           if (_errorMessage != null && _errorMessage!.isNotEmpty)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: isKeyboardOpen ? bottomPadding : 0,
-              child: ErrorMessageWidget(
-                message: _errorMessage!,
-                fontSize: 16.0,
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: ErrorMessageWidget(message: _errorMessage!),
               ),
             ),
         ],
@@ -221,5 +202,11 @@ class _LoginPageState extends State<LoginPage> {
         _showError(result['error']);
       }
     }
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
   }
 }
