@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:registro_ponto/services/auth_service.dart';
 import 'package:registro_ponto/widgets/loading_indicator.dart';
 import 'package:registro_ponto/widgets/error_message_widget.dart';
-import 'package:registro_ponto/widgets/theme_switch.dart';
 import 'package:registro_ponto/utils/validators.dart';
 
 class LoginPage extends StatefulWidget {
-  final VoidCallback toggleTheme;
-
-  const LoginPage({super.key, required this.toggleTheme});
+  const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -22,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _showPassword = false;
   String? _errorMessage;
   bool _isLoading = false;
+  bool _isButtonDisabled = false;
   final AuthService _authService = AuthService();
 
   @override
@@ -64,76 +62,127 @@ class _LoginPageState extends State<LoginPage> {
   void _showError(String message) {
     setState(() {
       _errorMessage = message;
+      _isButtonDisabled = true; // Desabilitar o botão ao mostrar o erro
     });
 
     Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         _errorMessage = null;
+        _isButtonDisabled = false; // Habilitar o botão após ocultar o erro
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom != 0;
     final double bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
-          SingleChildScrollView(
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Align(
-                        alignment: Alignment.topRight,
-                        child: ThemeSwitch(
-                          isDarkMode:
-                              Theme.of(context).brightness == Brightness.dark,
-                          onToggle: widget.toggleTheme,
+          Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  child: SafeArea(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                      child: Form(
+                        key: _formKey,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: Theme.of(context).colorScheme.copyWith(
+                                  primary: Colors.blueAccent,
+                                ),
+                            checkboxTheme: CheckboxThemeData(
+                              fillColor:
+                                  WidgetStateProperty.resolveWith<Color?>(
+                                      (states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return Colors.blueAccent;
+                                }
+                                return Colors.white;
+                              }),
+                              checkColor:
+                                  WidgetStateProperty.resolveWith<Color?>(
+                                      (states) {
+                                if (states.contains(WidgetState.selected)) {
+                                  return Colors.white;
+                                }
+                                return null;
+                              }),
+                              side: const BorderSide(color: Colors.blueAccent),
+                            ),
+                            inputDecorationTheme: const InputDecorationTheme(
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.blueAccent, width: 2.0),
+                              ),
+                              labelStyle: TextStyle(color: Colors.black87),
+                              floatingLabelStyle:
+                                  TextStyle(color: Colors.blueAccent),
+                              errorStyle: TextStyle(color: Colors.redAccent),
+                              errorBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.redAccent, width: 2.0),
+                              ),
+                              focusedErrorBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors.redAccent, width: 2.0),
+                              ),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 16),
+                              const Text(
+                                "Bem Vindo Novamente",
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 36),
+                              _buildUsernameField(),
+                              const SizedBox(height: 20),
+                              _buildPasswordField(),
+                              const SizedBox(height: 20),
+                              _buildRememberMeCheckbox(),
+                              _buildLoginButton(),
+                              SizedBox(
+                                height: bottomPadding == 0 ? 60 : bottomPadding,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        "Bem Vindo Novamente",
-                        style: TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 36),
-                      _buildUsernameField(),
-                      const SizedBox(height: 20),
-                      _buildPasswordField(),
-                      const SizedBox(height: 20),
-                      _buildRememberMeCheckbox(),
-                      _buildLoginButton(),
-                      SizedBox(
-                        height: isKeyboardOpen ? bottomPadding : 60,
-                      ),
-                    ],
+                    ),
                   ),
                 ),
               ),
-            ),
+              if (_errorMessage != null && _errorMessage!.isNotEmpty)
+                Padding(
+                  padding: EdgeInsets.only(bottom: bottomPadding),
+                  child: ErrorMessageWidget(
+                    message: _errorMessage!,
+                    fontSize: 16.0,
+                    onShow: () {
+                      setState(() {
+                        _isButtonDisabled = true;
+                      });
+                    },
+                    onHide: () {
+                      setState(() {
+                        _isButtonDisabled = false;
+                      });
+                    },
+                  ),
+                ),
+            ],
           ),
           if (_isLoading) const LoadingIndicator(),
-          if (_errorMessage != null && _errorMessage!.isNotEmpty)
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: isKeyboardOpen ? bottomPadding : 0,
-              child: ErrorMessageWidget(
-                message: _errorMessage!,
-                fontSize: 16.0,
-              ),
-            ),
         ],
       ),
     );
@@ -169,10 +218,10 @@ class _LoginPageState extends State<LoginPage> {
   Widget _buildLoginButton() {
     return Center(
       child: ElevatedButton(
-        onPressed: _onLoginPressed,
+        onPressed: _isButtonDisabled ? null : _onLoginPressed,
         style: ElevatedButton.styleFrom(
           foregroundColor: Colors.white,
-          backgroundColor: Colors.blue,
+          backgroundColor: _isButtonDisabled ? Colors.grey : Colors.blue,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -196,7 +245,6 @@ class _LoginPageState extends State<LoginPage> {
               _rememberMe = value ?? false;
             });
           },
-          shape: const CircleBorder(),
         ),
         const Text("Lembrar-Me"),
       ],

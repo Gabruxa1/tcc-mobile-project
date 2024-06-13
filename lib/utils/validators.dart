@@ -3,9 +3,16 @@ bool isFieldNotEmpty(String? value) {
 }
 
 String? validateEmail(String? value) {
-  if (!isFieldNotEmpty(value)) {
+  String pattern =
+      r'^[a-zA-Z0-9.a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9]+\.[a-zA-Z]+(\.[a-zA-Z]+)?$';
+  RegExp regex = RegExp(pattern);
+
+  if (value == null || value.isEmpty) {
     return 'Por favor, insira seu email';
+  } else if (!regex.hasMatch(value)) {
+    return 'Por favor, insira um e-mail válido';
   }
+
   return null;
 }
 
