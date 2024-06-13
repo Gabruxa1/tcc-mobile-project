@@ -18,8 +18,11 @@ class _LoginPageState extends State<LoginPage> {
   bool _rememberMe = false;
   bool _showPassword = false;
   String? _errorMessage;
+<<<<<<< HEAD
   bool _isLoading = false;
   bool _isButtonDisabled = false;
+=======
+>>>>>>> 9546e7f6b7004b5647a039c65fc6d8cd8fc30b14
   final AuthService _authService = AuthService();
 
   @override
@@ -30,16 +33,13 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loadCredentials() async {
     final credentials = await _authService.getSavedCredentials();
-    final rememberMe = await _authService.getRememberMe();
     if (credentials != null) {
       setState(() {
         _email = credentials['email']!;
         _password = credentials['senha']!;
-        _rememberMe = rememberMe;
+        _rememberMe = true;
       });
-      if (rememberMe) {
-        await _autoLogin();
-      }
+      await _autoLogin();
     }
   }
 
@@ -59,6 +59,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+<<<<<<< HEAD
   void _showError(String message) {
     setState(() {
       _errorMessage = message;
@@ -77,6 +78,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final double bottomPadding = MediaQuery.of(context).viewInsets.bottom;
 
+=======
+  bool _isLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
+>>>>>>> 9546e7f6b7004b5647a039c65fc6d8cd8fc30b14
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -158,7 +165,26 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         ),
                       ),
+<<<<<<< HEAD
                     ),
+=======
+                      const SizedBox(height: 16),
+                      const Text(
+                        "Bem Vindo Novamente",
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 36),
+                      _buildUsernameField(),
+                      const SizedBox(height: 20),
+                      _buildPasswordField(),
+                      const SizedBox(height: 20),
+                      _buildRememberMeCheckbox(),
+                      _buildLoginButton(),
+                    ],
+>>>>>>> 9546e7f6b7004b5647a039c65fc6d8cd8fc30b14
                   ),
                 ),
               ),
@@ -182,7 +208,22 @@ class _LoginPageState extends State<LoginPage> {
                 ),
             ],
           ),
+<<<<<<< HEAD
           if (_isLoading) const LoadingIndicator(),
+=======
+          if (_isLoading) // Mostrar indicador de carregamento se estiver carregando
+            const LoadingIndicator(),
+          if (_errorMessage != null && _errorMessage!.isNotEmpty)
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom,
+                ),
+                child: ErrorMessageWidget(message: _errorMessage!),
+              ),
+            ),
+>>>>>>> 9546e7f6b7004b5647a039c65fc6d8cd8fc30b14
         ],
       ),
     );
@@ -269,5 +310,11 @@ class _LoginPageState extends State<LoginPage> {
         _showError(result['error']);
       }
     }
+  }
+
+  void _showError(String message) {
+    setState(() {
+      _errorMessage = message;
+    });
   }
 }

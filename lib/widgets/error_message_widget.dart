@@ -1,7 +1,6 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 
-class ErrorMessageWidget extends StatefulWidget {
+class ErrorMessageWidget extends StatelessWidget {
   final String message;
   final double fontSize;
   final Duration duration;
@@ -10,6 +9,7 @@ class ErrorMessageWidget extends StatefulWidget {
 
   const ErrorMessageWidget({
     super.key,
+    Key? key,
     required this.message,
     required this.onShow,
     required this.onHide,
@@ -94,11 +94,5 @@ class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
   }
 }
