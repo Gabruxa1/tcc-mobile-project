@@ -1,39 +1,92 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
-class ErrorMessageWidget extends StatelessWidget {
+class ErrorMessageWidget extends StatefulWidget {
   final String message;
+  final double fontSize;
+  final Duration duration;
 
   const ErrorMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
-  }) : super(key: key);
+    this.fontSize = 14.0,
+    this.duration = const Duration(seconds: 5),
+  });
+
+  @override
+  _ErrorMessageWidgetState createState() => _ErrorMessageWidgetState();
+}
+
+class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
+  late Timer _timer;
+  double _progress = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+
+  void _startTimer() {
+    const tick = Duration(milliseconds: 100);
+    final totalTicks = widget.duration.inMilliseconds ~/ tick.inMilliseconds;
+    int ticksElapsed = 0;
+
+    _timer = Timer.periodic(tick, (timer) {
+      setState(() {
+        _progress = 1 - (ticksElapsed / totalTicks);
+        ticksElapsed++;
+      });
+
+      if (ticksElapsed >= totalTicks) {
+        timer.cancel();
+        _dismissWidget();
+      }
+    });
+  }
+
+  void _dismissWidget() {
+    Future.delayed(const Duration(milliseconds: 500), () {
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (message.isEmpty) {
-      return const SizedBox.shrink(); // Não mostra nada se não houver mensagem.
-    }
-
-    // Calcula a posição da caixa de mensagem de erro baseada na presença do teclado.
-    final bool isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom != 0;
-    final double bottomPadding = isKeyboardOpen
-        ? 60.0
-        : 0.0; // 60.0 é um valor arbitrário, ajuste conforme a necessidade.
-
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: bottomPadding,
-      child: Container(
-        padding: const EdgeInsets.all(8.0),
-        color: Colors.red,
-        width: double.infinity,
-        child: Text(
-          message,
-          style: const TextStyle(color: Colors.white),
-          textAlign: TextAlign.center,
-        ),
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      color: Colors.red.withOpacity(0.9),
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            widget.message,
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: widget.fontSize,
+              decoration: TextDecoration.none,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 4),
+          LinearProgressIndicator(
+            value: _progress,
+            backgroundColor: Colors.transparent,
+            valueColor: const AlwaysStoppedAnimation<Color>(
+              Colors.white70,
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
   }
 }
