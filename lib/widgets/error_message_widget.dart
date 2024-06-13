@@ -5,10 +5,14 @@ class ErrorMessageWidget extends StatefulWidget {
   final String message;
   final double fontSize;
   final Duration duration;
+  final VoidCallback onShow;
+  final VoidCallback onHide;
 
   const ErrorMessageWidget({
     super.key,
     required this.message,
+    required this.onShow,
+    required this.onHide,
     this.fontSize = 14.0,
     this.duration = const Duration(seconds: 5),
   });
@@ -24,6 +28,9 @@ class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.onShow();
+    });
     _startTimer();
   }
 
@@ -48,6 +55,7 @@ class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
   void _dismissWidget() {
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
+        widget.onHide();
         Navigator.of(context).pop();
       }
     });
@@ -55,31 +63,35 @@ class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8.0),
-      color: Colors.red.withOpacity(0.9),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            widget.message,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: widget.fontSize,
-              decoration: TextDecoration.none,
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        padding: const EdgeInsets.all(8.0),
+        color: Colors.red.withOpacity(0.9),
+        width: double.infinity,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              widget.message,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: widget.fontSize,
+                decoration: TextDecoration.none,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          LinearProgressIndicator(
-            value: _progress,
-            backgroundColor: Colors.transparent,
-            valueColor: const AlwaysStoppedAnimation<Color>(
-              Colors.white70,
+            const SizedBox(height: 4),
+            LinearProgressIndicator(
+              value: _progress,
+              backgroundColor: Colors.transparent,
+              valueColor: const AlwaysStoppedAnimation<Color>(
+                Colors.white70,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
