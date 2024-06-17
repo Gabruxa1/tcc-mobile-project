@@ -2,9 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:registro_ponto/screens/login/login_screen.dart';
 import 'package:registro_ponto/screens/registro_ponto/registro_ponto_screen.dart';
 import 'package:registro_ponto/screens/relatorio/relatorio_screen.dart';
+import 'package:registro_ponto/screens/configuracoes/configuracoes_screen.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 
-void main() => runApp(const MyApp());
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
+void main() {
+  tz.initializeTimeZones();
+  tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
+
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+  );
+
+  flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onSelectNotification: (String? payload) async {
+      if (payload != null) {
+        debugPrint('notification payload: $payload');
+      }
+    },
+  );
+
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -25,6 +52,7 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginPage(),
         '/registroPonto': (context) => const RegistroPontoPage(),
         '/gerarRelatorio': (context) => const RelatorioScreen(),
+        '/configuracoes': (context) => const ConfiguracoesScreen(),
       },
       title: 'Aplicativo de Ponto',
       themeMode: ThemeMode.light,

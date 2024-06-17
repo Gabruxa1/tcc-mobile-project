@@ -62,13 +62,13 @@ class _LoginPageState extends State<LoginPage> {
   void _showError(String message) {
     setState(() {
       _errorMessage = message;
-      _isButtonDisabled = true; // Desabilitar o botão ao mostrar o erro
+      _isButtonDisabled = true;
     });
 
     Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         _errorMessage = null;
-        _isButtonDisabled = false; // Habilitar o botão após ocultar o erro
+        _isButtonDisabled = false;
       });
     });
   }
@@ -112,7 +112,7 @@ class _LoginPageState extends State<LoginPage> {
                                 }
                                 return null;
                               }),
-                              side: const BorderSide(color: Colors.blueAccent),
+                              side: const BorderSide(color: Colors.grey),
                             ),
                             inputDecorationTheme: const InputDecorationTheme(
                               focusedBorder: UnderlineInputBorder(

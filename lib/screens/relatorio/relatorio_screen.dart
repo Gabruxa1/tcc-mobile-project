@@ -7,6 +7,7 @@ import 'package:open_file/open_file.dart';
 import 'dart:io';
 import 'dart:async';
 import '../../widgets/error_message_widget.dart';
+import '../../widgets/loading_indicator.dart';
 
 class RelatorioScreen extends StatefulWidget {
   const RelatorioScreen({super.key});
@@ -105,6 +106,10 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                ),
                 child: const Text('OK'),
               ),
               TextButton(
@@ -120,6 +125,10 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                     _showErrorMessage('O arquivo PDF não foi encontrado.');
                   }
                 },
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blue,
+                ),
                 child: const Text('Abrir arquivo'),
               ),
             ],
@@ -137,13 +146,13 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
   void _showErrorMessage(String message) {
     setState(() {
       _errorMessage = message;
-      _isButtonDisabled = true; // Desabilitar o botão ao mostrar o erro
+      _isButtonDisabled = true;
     });
 
     Future.delayed(const Duration(seconds: 5), () {
       setState(() {
         _errorMessage = null;
-        _isButtonDisabled = false; // Habilitar o botão após ocultar o erro
+        _isButtonDisabled = false;
       });
     });
   }
@@ -225,9 +234,7 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                               backgroundColor:
                                   _isButtonDisabled ? Colors.grey : Colors.blue,
                             ),
-                            child: _isLoading
-                                ? const CircularProgressIndicator()
-                                : const Text('Gerar Relatório'),
+                            child: const Text('Gerar Relatório'),
                           ),
                         ),
                       ],
@@ -255,6 +262,7 @@ class _RelatorioScreenState extends State<RelatorioScreen> {
                 ),
             ],
           ),
+          if (_isLoading) const LoadingIndicator(),
         ],
       ),
     );

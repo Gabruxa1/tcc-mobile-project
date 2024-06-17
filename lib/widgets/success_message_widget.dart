@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-class ErrorMessageWidget extends StatefulWidget {
+class SuccessMessageWidget extends StatefulWidget {
   final String message;
   final double fontSize;
   final Duration duration;
   final VoidCallback onShow;
   final VoidCallback onHide;
 
-  const ErrorMessageWidget({
+  const SuccessMessageWidget({
     super.key,
     required this.message,
     required this.onShow,
@@ -18,10 +18,10 @@ class ErrorMessageWidget extends StatefulWidget {
   });
 
   @override
-  _ErrorMessageWidgetState createState() => _ErrorMessageWidgetState();
+  _SuccessMessageWidgetState createState() => _SuccessMessageWidgetState();
 }
 
-class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
+class _SuccessMessageWidgetState extends State<SuccessMessageWidget> {
   late Timer _timer;
   double _progress = 1.0;
 
@@ -66,7 +66,7 @@ class _ErrorMessageWidgetState extends State<ErrorMessageWidget> {
       alignment: Alignment.bottomCenter,
       child: Container(
         padding: const EdgeInsets.all(8.0),
-        color: Colors.red.withOpacity(0.9),
+        color: Colors.green.withOpacity(0.9),
         width: double.infinity,
         child: Column(
           mainAxisSize: MainAxisSize.min,
