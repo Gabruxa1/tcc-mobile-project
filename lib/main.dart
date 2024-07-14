@@ -7,30 +7,83 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:android_intent_plus/android_intent.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   tz.initializeTimeZones();
   tz.setLocalLocation(tz.getLocation('America/Sao_Paulo'));
 
+  await _initializeNotifications();
+  await _requestPermissions();
+
+  runApp(const MyApp());
+}
+
+Future<void> _initializeNotifications() async {
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
+
   const InitializationSettings initializationSettings = InitializationSettings(
     android: initializationSettingsAndroid,
   );
 
-  flutterLocalNotificationsPlugin.initialize(
+  await flutterLocalNotificationsPlugin.initialize(
     initializationSettings,
     onSelectNotification: (String? payload) async {
       if (payload != null) {
-        debugPrint('notification payload: $payload');
+        debugPrint('Notification payload: $payload');
+      } else {
+        debugPrint('Notification clicked with no payload');
       }
     },
   );
 
-  runApp(const MyApp());
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'registro_ponto_channel_id',
+    'Registro de Ponto',
+    description: 'Canal para notificações de registro de ponto',
+    importance: Importance.high,
+  );
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+}
+
+Future<void> _requestPermissions() async {
+  final notificationStatus = await Permission.notification.status;
+  if (!notificationStatus.isGranted) {
+    await Permission.notification.request();
+  }
+
+  if (!await Permission.ignoreBatteryOptimizations.isGranted) {
+    await Permission.ignoreBatteryOptimizations.request();
+  }
+
+  if (!await _hasScheduleExactAlarmPermission()) {
+    await _requestScheduleExactAlarmPermission();
+  }
+}
+
+Future<bool> _hasScheduleExactAlarmPermission() async {
+  const intent = AndroidIntent(
+    action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+  );
+  return (await intent.canResolveActivity()) ?? false;
+}
+
+Future<void> _requestScheduleExactAlarmPermission() async {
+  const intent = AndroidIntent(
+    action: 'android.settings.REQUEST_SCHEDULE_EXACT_ALARM',
+  );
+  await intent.launch();
 }
 
 class MyApp extends StatelessWidget {

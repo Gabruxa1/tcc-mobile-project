@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../services/configuracoes_service.dart';
 import '../../widgets/custom_drawer.dart';
-import '../../widgets/time_picker_dialog.dart';
 import '../../main.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 

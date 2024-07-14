@@ -7,7 +7,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
-# Both the version and the builder number may be overridden in flutter
+# Both the version and the build number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # In Android, build-name is used as versionName while build-number used as versionCode.
 # Read more about Android versioning at https://developer.android.com/studio/publish/versioning
@@ -42,6 +42,8 @@ dependencies:
   flutter_file_dialog: ^3.0.2
   url_launcher: ^6.0.6
   open_file: ^3.3.2
+  permission_handler: ^11.3.1
+  android_intent_plus: ^5.0.2
 
 dependency_overrides:
   intl: ^0.18.1
@@ -51,13 +53,32 @@ dev_dependencies:
     sdk: flutter
   http: ^1.2.1
   shared_preferences: ^2.0.13
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  flutter_launcher_icons: ^0.13.1
   flutter_lints: ^4.0.0
+
+flutter_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: false
+    image_path: "assets/icon.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: false
+    image_path: "assets/icon.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: false
+    image_path: "assets/icon.png"
+
+# The "flutter_lints" package below contains a set of recommended lints to
+# encourage good coding practices. The lint set provided by the package is
+# activated in the `analysis_options.yaml` file located at the root of your
+# package. See that file for information about deactivating specific lint
+# rules and activating additional ones.
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
