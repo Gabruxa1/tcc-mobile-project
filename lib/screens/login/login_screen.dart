@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:registro_ponto/services/auth_service.dart';
-import 'package:registro_ponto/widgets/loading_indicator.dart';
-import 'package:registro_ponto/widgets/error_message_widget.dart';
+import 'package:registro_ponto/widgets/indicador_carregamento.dart';
+import 'package:registro_ponto/widgets/mensagem_erro.dart';
 import 'package:registro_ponto/utils/validators.dart';
 
 class LoginPage extends StatefulWidget {

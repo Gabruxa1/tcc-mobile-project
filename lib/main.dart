@@ -3,6 +3,7 @@ import 'package:registro_ponto/screens/login/login_screen.dart';
 import 'package:registro_ponto/screens/registro_ponto/registro_ponto_screen.dart';
 import 'package:registro_ponto/screens/relatorio/relatorio_screen.dart';
 import 'package:registro_ponto/screens/configuracoes/configuracoes_screen.dart';
+import 'package:registro_ponto/screens/cadastro/cadastro_screen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:timezone/data/latest.dart' as tz;
@@ -106,6 +107,7 @@ class MyApp extends StatelessWidget {
         '/registroPonto': (context) => const RegistroPontoPage(),
         '/gerarRelatorio': (context) => const RelatorioScreen(),
         '/configuracoes': (context) => const ConfiguracoesScreen(),
+        '/cadastro': (context) => const CadastroScreen(),
       },
       title: 'Aplicativo de Ponto',
       themeMode: ThemeMode.light,

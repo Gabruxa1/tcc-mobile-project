@@ -5,12 +5,12 @@ import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart'
     show CalendarCarousel, Event;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import '../../widgets/custom_drawer.dart';
-import '../../services/register_service.dart';
-import '../../widgets/error_message_widget.dart';
-import '../../widgets/confirmation_modal.dart';
-import '../../widgets/loading_indicator.dart';
-import '../../widgets/success_message_widget.dart';
+import 'package:registro_ponto/widgets/menu_drawer.dart';
+import 'package:registro_ponto/services/registro_ponto_service.dart';
+import 'package:registro_ponto/widgets/mensagem_erro.dart';
+import 'package:registro_ponto/widgets/modal_confirmacao.dart';
+import 'package:registro_ponto/widgets/indicador_carregamento.dart';
+import 'package:registro_ponto/widgets/mensagem_sucesso.dart';
 
 class RegistroPontoPage extends StatefulWidget {
   const RegistroPontoPage({super.key});

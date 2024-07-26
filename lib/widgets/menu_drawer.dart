@@ -98,6 +98,19 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.person_add),
+                  title: const Text('Cadastro'),
+                  tileColor:
+                      currentRoute == '/cadastro' ? Colors.blue[100] : null,
+                  onTap: () {
+                    if (currentRoute != '/cadastro') {
+                      Navigator.pushNamed(context, '/cadastro');
+                    } else {
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.exit_to_app, color: Colors.red),
                   title: const Text(
                     'Sair',
