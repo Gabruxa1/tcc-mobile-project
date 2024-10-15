@@ -157,6 +157,9 @@ class _RegistroPontoPageState extends State<RegistroPontoPage> {
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
+        if (_errorMessage!.contains('Token')) {
+          _errorMessage = 'Token inválido ou expirado. Faça login novamente.';
+        }
         _showError = true;
       });
     }

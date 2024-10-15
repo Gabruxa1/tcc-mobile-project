@@ -7,6 +7,9 @@ class RegisterService {
 
   Future<http.Response> getPontos() async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Recuperando o token salvo
+    final String? token = prefs.getString('token');
     final int? funcionarioId = prefs.getInt('funcionario_id');
 
     if (funcionarioId == null) {
@@ -14,12 +17,24 @@ class RegisterService {
     }
 
     final String path = '/pontos/$funcionarioId';
-    return await _apiService.get(path);
+
+    // Verificando se o token existe antes de fazer a requisição
+    if (token == null) {
+      throw Exception(
+          'Token não encontrado. Por favor, faça o login novamente.');
+    }
+
+    return await _apiService.get(path, headers: {
+      'Authorization': 'Bearer $token',
+    });
   }
 
   Future<http.Response> registerPonto(
       String data, String entrada, String saida) async {
     final prefs = await SharedPreferences.getInstance();
+
+    // Recuperando o token salvo
+    final String? token = prefs.getString('token');
     final int? funcionarioId = prefs.getInt('funcionario_id');
 
     if (funcionarioId == null) {
@@ -33,6 +48,14 @@ class RegisterService {
       'saida': saida,
     };
 
-    return await _apiService.post(path, body);
+    // Verificando se o token está disponível antes de realizar a requisição
+    if (token == null) {
+      throw Exception(
+          'Token não encontrado. Por favor, faça o login novamente.');
+    }
+
+    return await _apiService.post(path, body, headers: {
+      'Authorization': 'Bearer $token',
+    });
   }
 }

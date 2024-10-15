@@ -33,7 +33,7 @@ class ReportService {
       final String path =
           '/relatorio/${credentials['funcionario_id']}?data_inicio=$formattedStartDate&data_fim=$formattedEndDate';
 
-      final http.Response response = await _apiService.get(path);
+      final http.Response response = await _apiService.get(path, headers: {});
 
       if (response.statusCode == 200) {
         final reportData = json.decode(response.body);
